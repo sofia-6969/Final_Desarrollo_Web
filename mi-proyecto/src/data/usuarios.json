@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "email": "admin@intimacyshop.com",
+    "password": "admin123",
+    "name": "Administrador"
+  },
+  {
+    "id": 2,
+    "email": "vendedor@intimacyshop.com",
+    "password": "vendedor123",
+    "name": "Vendedor"
+  }
+]
