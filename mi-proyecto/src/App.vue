@@ -78,4 +78,38 @@ export default {
 .dashboard-container {
   padding-top: 20px;
 }
+.main-content {
+  margin-top: 70px; /* Ajustado para navbar fijo */
+  padding: 25px;
+  min-height: calc(100vh - 140px); /* Altura mínima */
+  overflow-y: auto; /* Permite scroll si es necesario */
+}
+
+/* Asegurar que los modales sean visibles */
+.modal.show {
+  display: block;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Mejorar visibilidad de botones */
+.btn-primary-custom {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  font-weight: 600;
+}
+
+.btn-primary-custom:hover {
+  background-color: var(--dark-color);
+  border-color: var(--dark-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Espaciado para cards */
+.card {
+  margin-bottom: 20px;
+}
 </style>
