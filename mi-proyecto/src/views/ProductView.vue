@@ -1,13 +1,51 @@
 <template>
   <div class="product-view">
-    <!-- Encabezado -->
-    <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm">
-      <h2 class="text-primary-custom mb-0">
-        <i class="bi bi-bag me-2"></i>Gestión de Productos
-      </h2>
-      <button class="btn btn-primary-custom btn-lg" @click="showAddModal = true">
-        <i class="bi bi-plus-circle me-2"></i><strong>Agregar Producto</strong>
-      </button>
+    <!-- Encabezado con filtros -->
+    <div class="row mb-4">
+      <div class="col-md-8">
+        <div class="d-flex align-items-center p-3 bg-white rounded shadow-sm">
+          <h2 class="text-primary-custom mb-0 me-4">
+            <i class="bi bi-bag me-2"></i>Gestión de Productos
+          </h2>
+          
+          <!-- Filtro por categoría -->
+          <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" 
+              data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-filter me-2"></i>
+              {{ selectedCategory === 'all' ? 'Todas las categorías' : getCategoryName(selectedCategory) }}
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="#" @click.prevent="selectCategory('all')">
+                  <i class="bi bi-grid-3x3-gap me-2"></i>Todas las categorías
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li v-for="category in categories" :key="category.value">
+                <a class="dropdown-item" href="#" @click.prevent="selectCategory(category.value)">
+                  <i :class="category.icon" class="me-2"></i>{{ category.label }}
+                </a>
+              </li>
+            </ul>
+          </div>
+          
+          <!-- Contador de productos -->
+          <div class="ms-4">
+            <span class="badge bg-primary-custom">
+              {{ filteredProducts.length }} producto{{ filteredProducts.length !== 1 ? 's' : '' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="d-flex justify-content-end">
+          <button class="btn btn-primary-custom btn-lg" @click="showAddModal = true">
+            <i class="bi bi-plus-circle me-2"></i><strong>Agregar Producto</strong>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Alertas Bootstrap -->
@@ -35,10 +73,21 @@
       </button>
     </div>
 
-    <!-- Lista de productos -->
-    <div class="row" v-else>
+    <!-- Mensaje cuando no hay productos en la categoría seleccionada -->
+    <div v-else-if="filteredProducts.length === 0 && selectedCategory !== 'all'" 
+      class="text-center py-5 bg-light rounded">
+      <i class="bi bi-emoji-frown text-muted" style="font-size: 3rem;"></i>
+      <h4 class="text-muted mt-3">No hay productos en esta categoría</h4>
+      <p class="text-muted">No se encontraron productos en "{{ getCategoryName(selectedCategory) }}"</p>
+      <button class="btn btn-primary-custom" @click="selectCategory('all')">
+        <i class="bi bi-eye me-2"></i>Ver todos los productos
+      </button>
+    </div>
+
+    <!-- Lista de productos filtrados -->
+    <div v-else class="row">
       <div 
-        v-for="product in products" 
+        v-for="product in filteredProducts" 
         :key="product.id" 
         class="col-md-6 col-lg-4 mb-4"
       >
@@ -50,7 +99,7 @@
       </div>
     </div>
 
-    <!-- Modal para agregar/editar producto -->
+    <!-- Modal para agregar/editar producto (MANTIENE EL MISMO CÓDIGO) -->
     <div v-if="showAddModal || showEditModal" class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5)">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -78,10 +127,9 @@
                   <div class="mb-3">
                     <label class="form-label fw-bold">Categoría *</label>
                     <select v-model="currentProduct.category" class="form-select" required>
-                      <option value="juguetes">🎮 Juguetes Íntimos</option>
-                      <option value="lenceria">👙 Lencería</option>
-                      <option value="cosmetica">💄 Cosmética Íntima</option>
-                      <option value="cuidado">🧴 Cuidado Personal</option>
+                      <option v-for="category in categories" :key="category.value" :value="category.value">
+                        {{ category.label }}
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -126,7 +174,7 @@
       </div>
     </div>
 
-    <!-- Modal de confirmación para eliminar -->
+    <!-- Modal de confirmación para eliminar (MANTIENE EL MISMO CÓDIGO) -->
     <div v-if="showDeleteModal" class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5)">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -175,6 +223,7 @@ export default {
   data() {
     return {
       products: [],
+      filteredProducts: [],
       loading: false,
       saving: false,
       deleting: false,
@@ -182,6 +231,7 @@ export default {
       showEditModal: false,
       showDeleteModal: false,
       productToDelete: null,
+      selectedCategory: 'all',
       currentProduct: {
         title: '',
         price: 0,
@@ -189,6 +239,12 @@ export default {
         image: '',
         category: 'juguetes'
       },
+      categories: [
+        { value: 'juguetes', label: '🎮 Juguetes Íntimos', icon: 'bi-controller' },
+        { value: 'lenceria', label: '👙 Lencería', icon: 'bi-heart' },
+        { value: 'cosmetica', label: '💄 Cosmética Íntima', icon: 'bi-droplet' },
+        { value: 'cuidado', label: '🧴 Cuidado Personal', icon: 'bi-bandaid' }
+      ],
       alert: {
         show: false,
         type: 'success',
@@ -197,20 +253,60 @@ export default {
       }
     }
   },
+  computed: {
+    // Contador por categoría para el dropdown
+    categoryCounts() {
+      const counts = { all: this.products.length }
+      this.categories.forEach(cat => {
+        counts[cat.value] = this.products.filter(p => p.category === cat.value).length
+      })
+      return counts
+    }
+  },
   async mounted() {
     await this.loadProducts()
+  },
+  watch: {
+    // Actualizar productos filtrados cuando cambia la categoría seleccionada
+    selectedCategory() {
+      this.filterProducts()
+    },
+    // Actualizar productos filtrados cuando cambia la lista de productos
+    products() {
+      this.filterProducts()
+    }
   },
   methods: {
     async loadProducts() {
       this.loading = true
       try {
         this.products = await productService.getProducts()
+        this.filterProducts()
       } catch (error) {
         this.showAlert('danger', 'bi-exclamation-triangle', 'Error cargando productos')
         console.error('Error loading products:', error)
       } finally {
         this.loading = false
       }
+    },
+    
+    filterProducts() {
+      if (this.selectedCategory === 'all') {
+        this.filteredProducts = [...this.products]
+      } else {
+        this.filteredProducts = this.products.filter(
+          product => product.category === this.selectedCategory
+        )
+      }
+    },
+    
+    selectCategory(category) {
+      this.selectedCategory = category
+    },
+    
+    getCategoryName(category) {
+      const cat = this.categories.find(c => c.value === category)
+      return cat ? cat.label.replace(/[^\w\s]/gi, '') : category
     },
     
     editProduct(product) {
@@ -295,7 +391,6 @@ export default {
         icon,
         message
       }
-      // Ocultar alerta después de 5 segundos
       setTimeout(() => {
         this.alert.show = false
       }, 5000)
@@ -310,13 +405,35 @@ export default {
   margin-top: 20px;
 }
 
-.btn-lg {
-  padding: 12px 24px;
-  font-size: 16px;
+.dropdown-toggle {
+  padding: 8px 16px;
+  font-weight: 500;
 }
 
-.alert {
+.dropdown-menu {
   border-radius: 10px;
-  border: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
+
+.dropdown-item {
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin: 2px 5px;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(139, 0, 139, 0.1);
+}
+
+.dropdown-item.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.badge {
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  border-radius: 20px;
+}
+
 </style>
