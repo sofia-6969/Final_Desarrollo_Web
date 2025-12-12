@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import ProductView from '../views/ProductView.vue'
-import ClientView from '../views/ClientView.vue'
+import UserView from '../views/UserView.vue' 
 
 const routes = [
   {
@@ -28,10 +28,10 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
-        path: 'clientes',
-        name: 'Clientes',
-        component: ClientView,
-        meta: { requiresAuth: true }
+        path: 'usuarios',
+      name: 'Usuarios',
+      component: UserView, 
+      meta: { requiresAuth: true }
       }
     ]
   }
