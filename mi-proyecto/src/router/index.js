@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import ProductView from '../views/ProductView.vue'
-import ClientView from '../views/ClientView.vue'
+import ClientView from '../views/UserView.vue'
 
 const routes = [
   {
