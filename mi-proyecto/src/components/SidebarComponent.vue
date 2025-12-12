@@ -13,9 +13,9 @@
         </li>
         <li class="nav-item">
           <router-link 
-            to="/dashboard/clientes" 
+            to="/dashboard/usuarios" 
             class="nav-link"
-            :class="{ 'active': $route.name === 'Clientes' }"
+            :class="{ 'active': $route.name === 'Usuarios' }"
           >
             👥 Clientes
           </router-link>
