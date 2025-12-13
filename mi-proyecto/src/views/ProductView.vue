@@ -99,7 +99,7 @@
       </div>
     </div>
 
-    <!-- Modal para agregar/editar producto (MANTIENE EL MISMO CÓDIGO) -->
+    <!-- Modal para agregar/editar producto  -->
     <div v-if="showAddModal || showEditModal" class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5)">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -174,7 +174,7 @@
       </div>
     </div>
 
-    <!-- Modal de confirmación para eliminar (MANTIENE EL MISMO CÓDIGO) -->
+    <!-- Modal de confirmación para eliminar  -->
     <div v-if="showDeleteModal" class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5)">
       <div class="modal-dialog">
         <div class="modal-content">
